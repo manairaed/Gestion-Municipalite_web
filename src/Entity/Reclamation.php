@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Entity;
-
-use App\Repository\ReclamationRepository;
 use Doctrine\DBAL\Types\Types;
+use App\Repository\ReclamationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 class Reclamation
@@ -14,84 +18,200 @@ class Reclamation
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255)]
+      /**
+     * @Assert\NotBlank(message=" Nom doit etre non vide")
+     * @Assert\Type("string",message="The value {{ value }} is not a valid {{ type }}.")
+     * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Your Name must be at least {{ limit }} characters long",
+     *      maxMessage = "Your Name cannot be longer than {{ limit }} characters"
+     * )
+     * @Groups("posts:read")
+     * @Groups("reclamations")
+     */
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 255)]
+
+
+/**
+     * *@Assert\NotBlank(message=" Prenom doit etre non vide")
+     * @Assert\Type("string",message="The value {{ value }} is not a valid {{ type }}.")
+     * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Your first name must be at least {{ limit }} characters long",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters"
+     * )
+     * @Groups("posts:read")
+     * @Groups("reclamations")
+     */
+    private ?string $prenom = null;
+
+    #[ORM\Column(length: 255)]
+
+  /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max="4096")
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email."
+     * )
+     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="email", type="string", length=500, nullable=false,unique=true)
+     * @Groups("posts:read")
+     * @Groups("reclamations")
+     */
+    private ?string $email = null;
+
+    #[ORM\Column]
+
+    private ?int $tel = null;
+
+    #[ORM\Column(length: 255)]
+
+
+    /**
+     * *@Assert\NotBlank(message=" Etat doit etre non vide")
+     * @Assert\Type("string",message="The value {{ value }} is not a valid {{ type }}.")
+     * @ORM\Column(type="string", length=255)
+     * @Groups("post:read")
+     * @Groups("reclamations")
+     */
+    private ?string $etat = null;
+
+    #[ORM\Column(length: 255)]
+      /**
+     * *@Assert\NotBlank(message=" Description doit etre non vide")
+     * @Assert\Type("string",message="The value {{ value }} is not a valid {{ type }}.")
+     * @ORM\Column(type="string", length=255)
+     * @Groups("posts:read")
+     * @Groups("reclamations")
+     */
+    private ?string $description = null;
+
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $date_rec = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $titre_rec = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $description_rec = null;
-
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?Avis $aviss = null;
+    private ?\DateTimeInterface $date_reclamation = null;
 
     #[ORM\ManyToOne(inversedBy: 'reclamations')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $users = null;
+    private ?Type $type = null;
 
+   
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDateRec(): ?\DateTimeInterface
+    public function getNom(): ?string
     {
-        return $this->date_rec;
+        return $this->nom;
     }
 
-    public function setDateRec(\DateTimeInterface $date_rec): self
+    public function setNom(string $nom): self
     {
-        $this->date_rec = $date_rec;
+        $this->nom = $nom;
 
         return $this;
     }
 
-    public function getTitreRec(): ?string
+    public function getPrenom(): ?string
     {
-        return $this->titre_rec;
+        return $this->prenom;
     }
 
-    public function setTitreRec(string $titre_rec): self
+    public function setPrenom(string $prenom): self
     {
-        $this->titre_rec = $titre_rec;
+        $this->prenom = $prenom;
 
         return $this;
     }
 
-    public function getDescriptionRec(): ?string
+    public function getEmail(): ?string
     {
-        return $this->description_rec;
+        return $this->email;
     }
 
-    public function setDescriptionRec(string $description_rec): self
+    public function setEmail(string $email): self
     {
-        $this->description_rec = $description_rec;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getAviss(): ?Avis
+    public function getTel(): ?int
     {
-        return $this->aviss;
+        return $this->tel;
     }
 
-    public function setAviss(?Avis $aviss): self
+    public function setTel(int $tel): self
     {
-        $this->aviss = $aviss;
+        $this->tel = $tel;
 
         return $this;
     }
 
-    public function getUsers(): ?User
+    public function getEtat(): ?string
     {
-        return $this->users;
+        return $this->etat;
     }
 
-    public function setUsers(?User $users): self
+    public function setEtat(string $etat): self
     {
-        $this->users = $users;
+        $this->etat = $etat;
 
         return $this;
     }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDateReclamation(): ?\DateTimeInterface
+    {
+        return $this->date_reclamation;
+    }
+
+    public function setDateReclamation(\DateTimeInterface $date_reclamation): self
+    {
+        $this->date_reclamation = $date_reclamation;
+
+        return $this;
+    }
+
+    public function getTypee(): ?Type
+    {
+        return $this->typee;
+    }
+
+    public function setTypee(?Type $typee): self
+    {
+        $this->typee = $typee;
+
+        return $this;
+    }
+
+    public function getType(): ?Type
+    {
+        return $this->type;
+    }
+
+    public function setType(?Type $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+   
 }

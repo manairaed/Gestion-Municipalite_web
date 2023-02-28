@@ -38,6 +38,16 @@ class ReclamationRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+    
+    public function findLast()
+    {
+    return $this->createQueryBuilder('p')
+        ->select('p', 'c')
+        ->join('p.typee', 'c')
+        ->getQuery()
+        ->getResult()
+    ;}
+
 
 //    /**
 //     * @return Reclamation[] Returns an array of Reclamation objects
