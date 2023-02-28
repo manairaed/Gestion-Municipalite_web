@@ -1,7 +1,8 @@
 
-
-{% block title %}Connexion{% endblock %}
-
+{% block title %}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{{ asset('css/login.css') }}">
+{% endblock %}
 {% block body %}
 <form method="post">
     {% if error %}
@@ -13,8 +14,8 @@
             Vous êtes connecté(e) comme {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Me déconnecter</a>
         </div>
     {% endif %}
-
-    <h1 class="h3 mb-3 font-weight-normal">Me connecter</h1>
+    <center><img src="{{ asset('img/header.jpg') }}" alt="Header Image" class="img-fluid" height="120px"></center>
+    <center><h1 class="h3 mb-3 font-weight-normal">Me connecter</h1></center>
     <label for="inputEmail">Email</label>
     <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
     <label for="inputPassword">Password</label>
