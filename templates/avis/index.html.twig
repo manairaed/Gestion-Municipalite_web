@@ -24,7 +24,8 @@
         {% for avi in avis %}
             <tr>
                 <td>{{ avi.id }}</td>
-                <td> {% include 'avis/rating.html.twig' with { 'rating': avi.rating } %}</td>                <td>{{ avi.commentaire }}</td>
+                <td> {% include 'avis/rating.html.twig' with { 'rating': avi.rating } %}</td>     
+                <td>{{ avi.commentaire }}</td>
                 <td>{{ avi.titre }}</td>
                 <td>
                     <a class="btn btn-success" href="{{ path('app_avis_show', {'id': avi.id}) }}">show</a>

@@ -20,7 +20,7 @@
             </tr>
             <tr>
                 <th>Rating</th>
-                <td>{{ avi.rating }}</td>
+                 <td> {% include 'avis/rating.html.twig' with { 'rating': avi.rating } %}</td>
             </tr>
             <tr>
                 <th>Commentaire</th>

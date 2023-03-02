@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\TypeRepository;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 #[Route('/reclamation')]
 class ReclamationController extends AbstractController
@@ -21,6 +23,40 @@ class ReclamationController extends AbstractController
             'reclamations' => $reclamationRepository->findAll(),
         ]);
     }
+
+    #[Route('/listr', name: 'app_reclamation_listr', methods: ['GET'])]
+    public function listr(ReclamationRepository $reclamationRepository): Response
+    {
+        
+
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        
+        // Instantiate Dompdf with our options
+        $dompdf = new Dompdf($pdfOptions);
+        $l = $reclamationRepository->findAll();
+        
+        // Retrieve the HTML generated in our twig file
+        $html = $this->renderView('reclamation/listr.html.twig', [
+            'reclamations' =>$l,
+        ]);
+        
+        // Load HTML to Dompdf
+        $dompdf->loadHtml($html);
+        
+        // (Optional) Setup the paper size and orientation 'portrait' or 'portrait'
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF to Browser (force download)
+        $dompdf->stream("mypdf.pdf", [
+            "Attachment" => true
+        ]);
+        return new Response();
+    }
+
 
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ReclamationRepository $reclamationRepository): Response

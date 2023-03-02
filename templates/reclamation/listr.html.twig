@@ -1,6 +1,3 @@
-{% extends 'baseback.html.twig' %}
-
-{% block title %}List_Reclamation {% endblock %}
 
 {% block body %}
     
@@ -9,14 +6,12 @@
 <br>
 <br>
 <center>
-<h1>Reclamations</h1>
+<h1 align="center" >Reclamations</h1>
 </center>
 <br>
 <br>
-             <a class="btn btn-danger"href="{{ path('app_reclamation_listr') }}">pdf</a>
 
-
-    <table class="table">
+    <table class="table" align="center">
         <thead>
             <tr>
                 <th>Id</th>
@@ -27,7 +22,7 @@
                 <th>Etat</th>
                 <th>Description</th>
                 <th>Date_reclamation</th>
-                <th>actions</th>
+               
             </tr>
         </thead>
         <tbody>
@@ -41,17 +36,7 @@
                 <td>{{ reclamation.etat }}</td>
                 <td>{{ reclamation.description }}</td>
                 <td>{{ reclamation.dateReclamation ? reclamation.dateReclamation|date('Y-m-d') : '' }}</td>
-                <td>
-                    <a class="btn btn-success" href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}">Afficher</a>
-                    <a class="btn btn-danger"href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}">Modifier</a>
-
-                </td>
                 
-            </tr>
-
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
             </tr>
         {% endfor %}
         </tbody>
