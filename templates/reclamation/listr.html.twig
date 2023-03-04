@@ -22,7 +22,7 @@
                 <th>Etat</th>
                 <th>Description</th>
                 <th>Date_reclamation</th>
-               
+                <th>Type</th>
             </tr>
         </thead>
         <tbody>
@@ -36,7 +36,7 @@
                 <td>{{ reclamation.etat }}</td>
                 <td>{{ reclamation.description }}</td>
                 <td>{{ reclamation.dateReclamation ? reclamation.dateReclamation|date('Y-m-d') : '' }}</td>
-                
+                 <td>{{ reclamation.type.type }}</td>
             </tr>
         {% endfor %}
         </tbody>

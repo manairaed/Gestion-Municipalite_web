@@ -94,6 +94,7 @@ class Reclamation
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\GreaterThan("today")]
     private ?\DateTimeInterface $date_reclamation = null;
 
     #[ORM\ManyToOne(inversedBy: 'reclamations')]
@@ -189,17 +190,7 @@ class Reclamation
         return $this;
     }
 
-    public function getTypee(): ?Type
-    {
-        return $this->typee;
-    }
-
-    public function setTypee(?Type $typee): self
-    {
-        $this->typee = $typee;
-
-        return $this;
-    }
+   
 
     public function getType(): ?Type
     {

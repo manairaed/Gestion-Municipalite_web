@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Reclamation;
 use App\Form\ReclamationType;
 use App\Repository\ReclamationRepository;
@@ -12,7 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\TypeRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
+use Symfony\Component\HttpFoundation\Session\Session ; 
+use CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\BarChart;
 #[Route('/reclamation')]
 class ReclamationController extends AbstractController
 {
@@ -23,6 +24,36 @@ class ReclamationController extends AbstractController
             'reclamations' => $reclamationRepository->findAll(),
         ]);
     }
+
+
+#[Route('/statisreclamation', name: 'app_reclamation_statisreclamation', methods: ['GET'])]
+public function statisreclamation(ReclamationRepository $ReclamationRepository)
+{
+    //on va chercher les categories
+    $rech = $ReclamationRepository->barDep();
+    $arr = $ReclamationRepository->barArr();
+    
+    $bar = new barChart ();
+    $bar->getData()->setArrayToDataTable(
+        [['reclamation', 'Type'],
+         ['Collecte des déchets', intVal($rech)],
+         ['Éclairage public', intVal($arr)],
+        
+
+        ]
+    );
+
+    $bar->getOptions()->setTitle('les Reclamations');
+    $bar->getOptions()->getHAxis()->setTitle('Nombre de reclamation');
+    $bar->getOptions()->getHAxis()->setMinValue(0);
+    $bar->getOptions()->getVAxis()->setTitle('Type');
+    $bar->getOptions()->SetWidth(800);
+    $bar->getOptions()->SetHeight(400);
+
+
+    return $this->render('reclamation/statisreclamation.html.twig', array('bar'=> $bar )); 
+
+} 
 
     #[Route('/listr', name: 'app_reclamation_listr', methods: ['GET'])]
     public function listr(ReclamationRepository $reclamationRepository): Response
@@ -59,23 +90,65 @@ class ReclamationController extends AbstractController
 
 
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, ReclamationRepository $reclamationRepository): Response
-    {
-        $reclamation = new Reclamation();
-        $form = $this->createForm(ReclamationType::class, $reclamation);
+    public function create(Request $request, EntityManagerInterface $entityManager)
+    {   $reclamation = new reclamation();
+         $form = $this->createForm(ReclamationType::class, $reclamation);
         $form->handleRequest($request);
+        $myDictionary = array(
+            "tue", "merde", "pute",
+            "gueule",
+            "débile",
+            "con",
+            "abruti",
+            "clochard",
+            "sang"
+        );
+        dump($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $reclamationRepository->save($reclamation, true);
+            $myText = $request->get("reclamation")['description'];
+            $badwords = new PhpBadWordsController();
+            $badwords->setDictionaryFromArray($myDictionary)
+                ->setText($myText);
+            $check = $badwords->check();
+            dump($check);
+            if ($check) {
+                $this->addFlash(
+                    'erreur',
+                    'Mot inapproprié! , Reclamation n est pas ajouté'
+                ); } 
+                else {
 
-            return $this->redirectToRoute('app_front', [], Response::HTTP_SEE_OTHER);
+           
+                $entityManager = $this->getdoctrine()->getManager();
+                $entityManager->persist($reclamation);
+                $entityManager->flush();
+                $this->addFlash(
+                    'info',
+                    'Reclamation ajouté !!'
+                );
+            }
+
+            return $this->redirectToRoute('app_reclamation_new', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('reclamation/new.html.twig', [
+
+        return $this->render('reclamation/new.html.twig', [
             'reclamation' => $reclamation,
-            'form' => $form,
+            'form' => $form->createView(),
+
         ]);
     }
+
+    
+    
+    
+    
+    
+
+
+
+
 
     #[Route('/{id}', name: 'app_reclamation_show', methods: ['GET'])]
     public function show(Reclamation $reclamation): Response

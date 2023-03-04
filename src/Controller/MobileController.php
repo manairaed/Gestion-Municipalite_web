@@ -225,7 +225,7 @@ class MobileController extends AbstractController
         $avis->setTitre($request->get('titre'));
 
 
-        $this->getDoctrine()->getManager()->persist($airport);
+        $this->getDoctrine()->getManager()->persist($avis);
 
         $this->getDoctrine()->getManager()->flush();
         return $this->json(array('title'=>'successful','message'=> "Aeroport modifié avec succès"),200);

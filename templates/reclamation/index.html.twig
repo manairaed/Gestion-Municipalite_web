@@ -14,9 +14,10 @@
 <br>
 <br>
              <a class="btn btn-danger"href="{{ path('app_reclamation_listr') }}">pdf</a>
+              <a class="btn btn-danger"href="{{ path('app_reclamation_statisreclamation') }}">Exel</a>
 
 
-    <table class="table">
+    <table class="table" >
         <thead>
             <tr>
                 <th>Id</th>
@@ -27,7 +28,8 @@
                 <th>Etat</th>
                 <th>Description</th>
                 <th>Date_reclamation</th>
-                <th>actions</th>
+                <th>Type</th>
+                 <th>actions</th>
             </tr>
         </thead>
         <tbody>
@@ -41,6 +43,7 @@
                 <td>{{ reclamation.etat }}</td>
                 <td>{{ reclamation.description }}</td>
                 <td>{{ reclamation.dateReclamation ? reclamation.dateReclamation|date('Y-m-d') : '' }}</td>
+                <td>{{ reclamation.type.type }}</td>
                 <td>
                     <a class="btn btn-success" href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}">Afficher</a>
                     <a class="btn btn-danger"href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}">Modifier</a>

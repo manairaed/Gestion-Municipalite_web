@@ -14,7 +14,13 @@
 <br>
     
     <h1>Create new Avis</h1>
-
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ type }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
     {{ include('avis/_form.html.twig') }}
 
     <a href="{{ path('app_avis_listavis') }}">liste Avis </a>

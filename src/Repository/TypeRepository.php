@@ -39,9 +39,9 @@ class TypeRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Type[] Returns an array of Type objects
-//     */
+   /**
+    * @return Type[] Returns an array of Type objects
+    */
 //    public function findByExampleField($value): array
 //    {
 //        return $this->createQueryBuilder('t')
