@@ -99,15 +99,58 @@ public function barArr(){
 
 
 public function findInput($value)
+    {
+        return $this->createQueryBuilder('r')
+            ->Where('r.nom LIKE :nom')
+            ->setParameter('nom', "%".$value."%")
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+
+  
+
+    public function SortBynom(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.nom','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function SortBydate(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.date','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+     
+    public function findBynom( $nom)
 {
-    return $this->createQueryBuilder('r')
-        ->Where('r.nom LIKE :nom')
-        ->setParameter('nom', "%".$value."%")
+    return $this-> createQueryBuilder('e')
+        ->andWhere('e.nom LIKE :nom')
+        ->setParameter('nom','%' .$nom. '%')
         ->getQuery()
-        ->getResult()
-        ;
+        ->execute();
 }
 
+public function findByprenom( $prenom)
+{
+    return $this-> createQueryBuilder('e')
+        ->andWhere('e.prenom LIKE :prenom')
+        ->setParameter('prenom','%' .$prenom. '%')
+        ->getQuery()
+        ->execute();
+}
+   
+
+
+
+    
+
+    
 
 
 }

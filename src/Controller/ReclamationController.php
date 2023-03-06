@@ -9,20 +9,70 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 use App\Repository\TypeRepository;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Symfony\Component\HttpFoundation\Session\Session ; 
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\Material\BarChart;
+use App\Form\RechercheType;
+
 #[Route('/reclamation')]
 class ReclamationController extends AbstractController
 {
-    #[Route('/', name: 'app_reclamation_index', methods: ['GET'])]
-    public function index(ReclamationRepository $reclamationRepository): Response
-    {
+
+
+    #[Route('/', name: 'app_reclamation_index', methods: ['GET', 'POST'])]
+    public function index( ReclamationRepository $reclamationRepository,EntityManagerInterface $entityManager, Request $request): Response
+    {    
+        $reclamations=$entityManager->getRepository(Reclamation::class)->findAll();
+        $back = null;
+        if($request->isMethod("POST")){
+            if ( $request->request->get('optionsRadios')){
+                $SortKey = $request->request->get('optionsRadios');
+                switch ($SortKey){
+                    case 'nom':
+                        $reclamations = $reclamationRepository->SortBynom();
+                        break;
+
+                    case 'date':
+                        $reclamations = $reclamationRepository->SortBydate();
+                        break;
+
+                
+
+                }
+            }
+            else
+            {
+                $type = $request->request->get('optionsearch');
+                $value = $request->request->get('Search');
+                switch ($type){
+                    case 'nom':
+                        $reclamations = $reclamationRepository->findBynom($value);
+                        break;
+
+               
+
+                    case 'prenom':
+                        $reclamations = $reclamationRepository->findByprenom($value);
+                        break;
+
+
+                }
+            }
+
+            if ( $reclamations ){
+                $back = "success";
+            }else{
+                $back = "failure";
+            }}
         return $this->render('reclamation/index.html.twig', [
-            'reclamations' => $reclamationRepository->findAll(),
-        ]);
+            'reclamations' => $reclamations,
+            'back' => $back,
+
+            ]);
+       
     }
 
 
@@ -89,6 +139,7 @@ public function statisreclamation(ReclamationRepository $ReclamationRepository)
     }
 
 
+    
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager)
     {   $reclamation = new reclamation();
@@ -122,6 +173,9 @@ public function statisreclamation(ReclamationRepository $ReclamationRepository)
            
                 $entityManager = $this->getdoctrine()->getManager();
                 $entityManager->persist($reclamation);
+
+
+
                 $entityManager->flush();
                 $this->addFlash(
                     'info',
@@ -182,8 +236,21 @@ public function statisreclamation(ReclamationRepository $ReclamationRepository)
         if ($this->isCsrfTokenValid('delete'.$reclamation->getId(), $request->request->get('_token'))) {
             $reclamationRepository->remove($reclamation, true);
         }
+        $this->addFlash('message', 'Votre ajout est complete');
+
+
+        $this->addFlash(
+            'info',
+            ' le Reclamation a été supprimer', 
+        );
+
+
 
         return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    
+
+    
    
 }
