@@ -63,4 +63,46 @@ class VehiculeRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+ /**
+     * return Vehicule[]
+     */
+
+     public function SortBydisponible(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.disponible','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+
+
+
+    public function SortBymarque(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.marque','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+     
+    public function findBydisponible( $disponible)
+{
+    return $this-> createQueryBuilder('e')
+        ->andWhere('e.disponible LIKE :nom')
+        ->setParameter('nom','%' .$disponible. '%')
+        ->getQuery()
+        ->execute();
+}
+
+
+public function findbymarque($marque)
+{
+    return $this->createQueryBuilder('e')
+        ->where('e.marque LIKE :marque')
+        ->setParameter('marque', '%'.$marque.'%')
+        ->getQuery()
+        ->getResult();
+}
+
 }

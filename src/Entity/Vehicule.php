@@ -4,6 +4,16 @@ namespace App\Entity;
 
 use App\Repository\VehiculeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
+
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: VehiculeRepository::class)]
 class Vehicule
@@ -13,18 +23,32 @@ class Vehicule
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $marque = null;
-
-    #[ORM\Column]
-    private ?bool $disponible = null;
-
     #[ORM\ManyToOne(inversedBy: 'vehicules')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Categorie $categorie = null;
 
     #[ORM\ManyToOne(inversedBy: 'vehicules')]
     private ?User $users = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups("vehicules")]
+    /**
+     * @Assert\NotBlank(message="Veuiller ajouter la marque S'il vous plait")
+     *@Assert\Length(
+     * min = 4,
+     * max = 8,
+     * minMessage="la marque doit etre superieure a 4",
+     * maxMessage="la marque doit inférieure a 8"
+     *   )
+     
+     */ 
+    private ?string $marque = null;
+
+    #[ORM\Column]
+    #[Groups("vehicules")]
+    private ?bool $disponible = null;
+
+   
 
     public function getId(): ?int
     {
@@ -78,4 +102,9 @@ class Vehicule
 
         return $this;
     }
+    public function __toString(): string
+    {
+        return $this->id; 
+    }
+    
 }

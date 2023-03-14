@@ -39,6 +39,28 @@ class CategorieRepository extends ServiceEntityRepository
         }
     }
 
+/**
+     * return Categorie[]
+     */
+    public function findBycat($specialite)
+    {
+        return $this->createQueryBuilder('cat')
+            ->where('cat.labelcat LIKE :labelcat')
+            ->setParameter('labelcat', '%'.$specialite.'%')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function trie()
+    {
+        return $this->createQueryBuilder('arbitrematch')
+            ->orderBy('arbitrematch.labelcat', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
 //    /**
 //     * @return Categorie[] Returns an array of Categorie objects
 //     */
@@ -63,4 +85,14 @@ class CategorieRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
+
+ 
 }
+
+
+
+
+
+

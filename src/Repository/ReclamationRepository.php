@@ -38,6 +38,16 @@ class ReclamationRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+    
+    public function findLast()
+    {
+    return $this->createQueryBuilder('p')
+        ->select('p', 'c')
+        ->join('p.typee', 'c')
+        ->getQuery()
+        ->getResult()
+    ;}
+
 
 //    /**
 //     * @return Reclamation[] Returns an array of Reclamation objects
@@ -63,4 +73,84 @@ class ReclamationRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+public function barDep(){
+    return $this->createQueryBuilder('r')
+    ->select('count(r.id)')
+    ->leftJoin('r.type', 't')
+    ->where('t.type LIKE :reclamation')
+    // ->where('r.typee LIKE : reclamation')
+    ->setParameter('reclamation','Collecte des déchets')
+    ->getQuery()
+    ->getSingleScalarResult();
+}
+
+public function barArr(){
+    return $this->createQueryBuilder('r')
+    ->select('count(r.id)')
+    ->leftJoin('r.type', 't')
+     ->where('t.type LIKE :reclamation')
+    // ->where('r.typee LIKE :  reclamation')
+    ->setParameter('reclamation','Éclairage public')
+    ->getQuery()
+    ->getSingleScalarResult();
+}
+
+
+
+public function findInput($value)
+    {
+        return $this->createQueryBuilder('r')
+            ->Where('r.nom LIKE :nom')
+            ->setParameter('nom', "%".$value."%")
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+
+  
+
+    public function SortBynom(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.nom','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function SortBydate(){
+        return $this->createQueryBuilder('e')
+            ->orderBy('e.date_reclamation','ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+     
+    public function findBynom( $nom)
+{
+    return $this-> createQueryBuilder('e')
+        ->andWhere('e.nom LIKE :nom')
+        ->setParameter('nom','%' .$nom. '%')
+        ->getQuery()
+        ->execute();
+}
+
+public function findByprenom( $prenom)
+{
+    return $this-> createQueryBuilder('e')
+        ->andWhere('e.prenom LIKE :prenom')
+        ->setParameter('prenom','%' .$prenom. '%')
+        ->getQuery()
+        ->execute();
+}
+   
+
+
+
+    
+
+    
+
+
 }

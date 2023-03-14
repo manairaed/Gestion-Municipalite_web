@@ -1,3 +1,15 @@
+{% extends 'baseback.html.twig' %}
+{% block titre %}
+<title>Ajouter Utilisateur</title>
+{% endblock %}
+{% block body %}
+<br>
+	<br>
+	<br>
+	<br>
+	<center>
+		<h1>Ajouter utilisateur</h1>
+	</center>
 <style>
     h1 {
         color: #333;
@@ -41,5 +53,7 @@
         background-color: #0069d9;
     }
 </style>
-<h1>Add User</h1>
-{{ form(userForm) }}
+    {{ include('user/_form.html.twig') }}
+
+    <a href="{{ path('app_user_index') }}" class="btn btn-success">back to list</a>
+{% endblock %}

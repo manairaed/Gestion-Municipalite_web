@@ -1,74 +1,58 @@
 <?php
 
 namespace App\Entity;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'integer')]
+    private $id;    
 
-    #[ORM\Column(length: 180, unique: true)]
-    private ?string $email = null;
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'Veuillez saisir un e-mail')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|tn)$/',
+        message: 'L\'email "{{ value }}" n\'est pas valide. Veuillez saisir une adresse email valide se terminant par ".com" ou ".tn et contient "@"".'
+    )]
+    private $email;
 
-    #[ORM\Column]
-    private ?string $roles = null;
+    #[ORM\Column(type: 'json')]
+    private $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
+    #[ORM\Column(type: 'string')]
+    private $password;
 
-    #[ORM\Column(length: 255)]
-    private ?string $nom_Util = null;
+    #[ORM\Column(type: 'boolean')]
+    private $isVerified = false;
 
-    #[ORM\Column(length: 255)]
-    private ?string $prenom_Util = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Veuillez saisir votre nom')]
+    #[Assert\Regex(pattern:"/^\D+$/" , message:"Le nom ne doit pas contenir de chiffres")]
+    private ?string $nomUtil = null;
 
-    #[ORM\Column]
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Veuillez saisir votre prenom')]
+    #[Assert\Regex(pattern:"/^\D+$/" , 
+                  message:"Le prenom ne doit pas contenir de chiffres")]
+    private ?string $PrenomUtil = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\NotBlank(message: 'Veuillez saisir votre numero')]
+    #[Assert\Regex(pattern:"/^[259][0-9]{7}$/" , message:"Le numéro de téléphone doit commencer par 2, 5 ou 9 et avoir 8 chiffres au total.")]
     private ?int $tel = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: RendezVous::class)]
-    private Collection $rendez_vous;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: Reclamation::class)]
-    private Collection $reclamations;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: Vehicule::class)]
-    private Collection $vehicules;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: Document::class)]
-    private Collection $Documents;
-
-    #[ORM\OneToMany(mappedBy: 'users', targetEntity: Reservation::class)]
-    private Collection $reservations;
     
-
-    public function __construct()
-    {
-        $this->rendez_vous = new ArrayCollection();
-        $this->reclamations = new ArrayCollection();
-        $this->vehicules = new ArrayCollection();
-        $this->Documents = new ArrayCollection();
-        $this->reservations = new ArrayCollection();
-    }
-
 
     public function getId(): ?int
     {
@@ -98,22 +82,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
-     */
-    public function getUsername(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
      * @see UserInterface
      */
-    public function getRoles(): ?string
+    public function getRoles(): array
     {
-        return $this->roles;
+        $roles = $this->roles;
+        // // guarantee every user at least has ROLE_USER
+        // $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
-    public function setRoles(string $roles): self
+    public function setRoles(array $roles): self
     {
         $this->roles = $roles;
 
@@ -136,17 +116,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
-    {
-        return null;
-    }
-
-    /**
      * @see UserInterface
      */
     public function eraseCredentials()
@@ -155,26 +124,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getNomUtil(): ?string
+    public function isVerified(): bool
     {
-        return $this->nom_Util;
+        return $this->isVerified;
     }
 
-    public function setNomUtil(string $nom_Util): self
+    public function setIsVerified(bool $isVerified): self
     {
-        $this->nom_Util = $nom_Util;
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getNomUtil(): ?string
+    {
+        return $this->nomUtil;
+    }
+
+    public function setNomUtil(?string $nomUtil): self
+    {
+        $this->nomUtil = $nomUtil;
 
         return $this;
     }
 
     public function getPrenomUtil(): ?string
     {
-        return $this->prenom_Util;
+        return $this->PrenomUtil;
     }
 
-    public function setPrenomUtil(string $prenom_Util): self
+    public function setPrenomUtil(?string $PrenomUtil): self
     {
-        $this->prenom_Util = $prenom_Util;
+        $this->PrenomUtil = $PrenomUtil;
 
         return $this;
     }
@@ -184,7 +165,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->tel;
     }
 
-    public function setTel(int $tel): self
+    public function setTel(?int $tel): self
     {
         $this->tel = $tel;
 
@@ -196,159 +177,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->adresse;
     }
 
-    public function setAdresse(string $adresse): self
+    public function setAdresse(?string $adresse): self
     {
         $this->adresse = $adresse;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, RendezVous>
-     */
-    public function getRendezVous(): Collection
-    {
-        return $this->rendez_vous;
-    }
-
-    public function addRendezVou(RendezVous $rendezVou): self
-    {
-        if (!$this->rendez_vous->contains($rendezVou)) {
-            $this->rendez_vous->add($rendezVou);
-            $rendezVou->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRendezVou(RendezVous $rendezVou): self
-    {
-        if ($this->rendez_vous->removeElement($rendezVou)) {
-            // set the owning side to null (unless already changed)
-            if ($rendezVou->getUsers() === $this) {
-                $rendezVou->setUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Reclamation>
-     */
-    public function getReclamations(): Collection
-    {
-        return $this->reclamations;
-    }
-
-    public function addReclamation(Reclamation $reclamation): self
-    {
-        if (!$this->reclamations->contains($reclamation)) {
-            $this->reclamations->add($reclamation);
-            $reclamation->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReclamation(Reclamation $reclamation): self
-    {
-        if ($this->reclamations->removeElement($reclamation)) {
-            // set the owning side to null (unless already changed)
-            if ($reclamation->getUsers() === $this) {
-                $reclamation->setUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Vehicule>
-     */
-    public function getVehicules(): Collection
-    {
-        return $this->vehicules;
-    }
-
-    public function addVehicule(Vehicule $vehicule): self
-    {
-        if (!$this->vehicules->contains($vehicule)) {
-            $this->vehicules->add($vehicule);
-            $vehicule->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeVehicule(Vehicule $vehicule): self
-    {
-        if ($this->vehicules->removeElement($vehicule)) {
-            // set the owning side to null (unless already changed)
-            if ($vehicule->getUsers() === $this) {
-                $vehicule->setUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Document>
-     */
-    public function getDocuments(): Collection
-    {
-        return $this->Documents;
-    }
-
-    public function addDocument(Document $document): self
-    {
-        if (!$this->Documents->contains($document)) {
-            $this->Documents->add($document);
-            $document->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDocument(Document $document): self
-    {
-        if ($this->Documents->removeElement($document)) {
-            // set the owning side to null (unless already changed)
-            if ($document->getUsers() === $this) {
-                $document->setUsers(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Reservation>
-     */
-    public function getReservations(): Collection
-    {
-        return $this->reservations;
-    }
-
-    public function addReservation(Reservation $reservation): self
-    {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations->add($reservation);
-            $reservation->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReservation(Reservation $reservation): self
-    {
-        if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
-            if ($reservation->getUsers() === $this) {
-                $reservation->setUsers(null);
-            }
-        }
 
         return $this;
     }

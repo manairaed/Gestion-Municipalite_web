@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\RendezVous;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use DateTimeInterface;
+
 
 /**
  * @extends ServiceEntityRepository<RendezVous>
@@ -38,6 +40,16 @@ class RendezVousRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+    public function countAppointmentsForDate(\DateTimeInterface $date)
+    {
+        return $this->createQueryBuilder('r')
+            ->select('COUNT(RendezVous.id)')
+            ->andWhere('RendezVous.date_ren = :date_ren')
+            ->setParameter('date_ren', $date)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
 
 //    /**
 //     * @return RendezVous[] Returns an array of RendezVous objects

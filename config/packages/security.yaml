@@ -1,5 +1,4 @@
 security:
-    enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -17,14 +16,11 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\UsersAuthenticator
-            # form_login:
-            #     login_path: app_login
-            #     check_path: app_login
+            custom_authenticator: App\Security\AppAuthenticator
             logout:
                 path: app_logout
                 # where to redirect after logout
-                # target: app_any_route
+                target: app_front
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -34,9 +30,19 @@ security:
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
-    access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+     access_control:
+         - { path: ^/back, roles: ROLE_ADMIN }
+         - { path: ^/user, roles: ROLE_ADMIN }
+         - { path: ^/categorie, roles: ROLE_ADMIN }
+         - { path: ^/outils, roles: [ROLE_ADMIN, ROLE_EMPLOYE]}
+         - { path: ^/reservation, roles: [ROLE_ADMIN, ROLE_EMPLOYE]}
+         - { path: ^/document, roles: [ROLE_ADMIN, ROLE_CITOYEN]}
+         - { path: ^/frontemploye, roles: ROLE_EMPLOYE }
+         - { path: ^/reclamation/new, roles: ROLE_CITOYEN }
+    role_hierarchy:
+        ROLE_CITOYEN: [ROLE_CITOYEN]
+        ROLE_EMPLOYE: [ROLE_EMPLOYE]
+        ROLE_ADMIN: [ROLE_ADMIN]
 
 when@test:
     security:

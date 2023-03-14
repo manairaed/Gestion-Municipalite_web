@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\CategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
+
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategorieRepository::class)]
@@ -16,7 +18,16 @@ class Categorie
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $label_cat = null;
+    /**
+     * @Assert\NotBlank(message="Veuiller ajouter un label S'il vous plait")
+     *@Assert\Length(
+     * min = 3,
+     * max = 8,
+     * minMessage="label doit etre superieure a 4",
+     * maxMessage="label doit inférieure a 8"
+     *   )
+     */ 
+    private ?string $labelcat = null;
 
     #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Vehicule::class)]
     private Collection $vehicules;
@@ -33,12 +44,12 @@ class Categorie
 
     public function getLabelCat(): ?string
     {
-        return $this->label_cat;
+        return $this->labelcat;
     }
 
-    public function setLabelCat(string $label_cat): self
+    public function setLabelCat(string $labelcat): self
     {
-        $this->label_cat = $label_cat;
+        $this->labelcat = $labelcat;
 
         return $this;
     }
@@ -71,5 +82,9 @@ class Categorie
         }
 
         return $this;
+    }
+    public function __toString(): string
+    {
+        return $this->labelcat; 
     }
 }

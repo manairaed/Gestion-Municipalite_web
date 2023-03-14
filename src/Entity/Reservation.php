@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Entity;
-
+use App\Entity\Outils;
 use App\Repository\ReservationRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Validator\Constraints as Assert; 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 class Reservation
@@ -14,94 +14,119 @@ class Reservation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('reservation')]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $date_res = null;
+    #[Assert\GreaterThan("today")]
+    #[Groups('reservation')]
+    private ?\DateTimeInterface $date_debut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $date_lim = null;
+    #[Assert\Expression("this.getDateDebut() < this.getDateFin()",message:"La date fin ne doit pas être inferieur à la date début")]
+    #[Groups('reservation')]
+    private ?\DateTimeInterface $date_fin = null;
+
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message:"le champ est obligatoire")] 
+    #[Assert\Range(
+        min: 1,
+        max: 100,
+        notInRangeMessage: 'Vous devez être entre {{ min }} et {{ max }} ', )]
+        #[Groups('reservation')]
+    private ?string $quantite = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups('reservation')]
+    private ?string $etat = null;
 
     #[ORM\ManyToOne(inversedBy: 'reservations')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $users = null;
+    #[Groups('reservation')]
+    private ?Outils $outil = null;
 
-    #[ORM\OneToMany(mappedBy: 'reservations', targetEntity: Outils::class)]
-    private Collection $outil;
-
-    public function __construct()
-    {
-        $this->outil = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDateRes(): ?\DateTimeInterface
+    public function getDateDebut(): ?\DateTimeInterface
     {
-        return $this->date_res;
+        return $this->date_debut;
     }
 
-    public function setDateRes(\DateTimeInterface $date_res): self
+    public function setDateDebut(\DateTimeInterface $date_debut): self
     {
-        $this->date_res = $date_res;
+        $this->date_debut = $date_debut;
 
         return $this;
     }
 
-    public function getDateLim(): ?\DateTimeInterface
+    public function getDateFin(): ?\DateTimeInterface
     {
-        return $this->date_lim;
+        return $this->date_fin;
     }
 
-    public function setDateLim(\DateTimeInterface $date_lim): self
+    public function setDateFin(\DateTimeInterface $date_fin): self
     {
-        $this->date_lim = $date_lim;
+        $this->date_fin = $date_fin;
 
         return $this;
     }
 
-    public function getUsers(): ?User
+    public function getQuantite(): ?string
     {
-        return $this->users;
+        return $this->quantite;
     }
 
-    public function setUsers(?User $users): self
+    public function setQuantite(string $quantite): self
     {
-        $this->users = $users;
+        $this->quantite = $quantite;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Outils>
-     */
-    public function getOutil(): Collection
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?string $etat): self
+    {
+        $this->etat = $etat;
+
+        return $this;
+    }
+
+    public function getOutil(): ?Outils
     {
         return $this->outil;
     }
 
-    public function addOutil(Outils $outil): self
+    public function setOutil(?Outils $outil): self
     {
-        if (!$this->outil->contains($outil)) {
-            $this->outil->add($outil);
-            $outil->setReservations($this);
-        }
+        $this->outil = $outil;
 
         return $this;
     }
 
-    public function removeOutil(Outils $outil): self
+    public function getUser(): ?User
     {
-        if ($this->outil->removeElement($outil)) {
-            // set the owning side to null (unless already changed)
-            if ($outil->getReservations() === $this) {
-                $outil->setReservations(null);
-            }
-        }
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
+    }
+    public function __toString(){
+        return (string) $this-> getId();
+       
+
+
     }
 }

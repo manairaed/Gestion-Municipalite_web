@@ -11,8 +11,13 @@ class BackController extends AbstractController
     #[Route('/back', name: 'app_back')]
     public function index(): Response
     {
-        return $this->render('back/index.html.twig', [
-            'controller_name' => 'BackController',
-        ]);
+        $this->denyAccessUnlessGranted("IS_AUTHENTICATED_FULLY");
+        /** @var User $user */
+		$user = $this->getUser();
+
+		return match ($user->isVerified()) {
+			true => $this->render("back/index.html.twig"),
+			false => $this->render("admin/please-verify-email.html.twig"),
+		};
     }
 }
