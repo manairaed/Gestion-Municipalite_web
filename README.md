@@ -1,4 +1,4 @@
-# Symfony 6 Registration and Login System
+# Symfony 6 Gestion Municipalite
 
 
 ## Requirements
